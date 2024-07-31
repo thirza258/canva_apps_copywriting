@@ -25,7 +25,7 @@ function buildConfig({
   backendHost = process.env.CANVA_BACKEND_HOST,
 } = {}) {
   const mode = devConfig ? "development" : "production";
-
+  
   if (!backendHost) {
     console.error(
       chalk.redBright.bold("BACKEND_HOST is undefined."),
