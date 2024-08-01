@@ -56,6 +56,11 @@ function buildConfig({
         src: path.resolve(__dirname, "src"),
       },
       extensions: [".ts", ".tsx", ".js", ".css", ".svg", ".woff", ".woff2"],
+      fallback: {
+        "crypto": false,
+        "os": false,
+        "path": false,
+      }
     },
     infrastructureLogging: {
       level: "none",

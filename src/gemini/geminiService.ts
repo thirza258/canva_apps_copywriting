@@ -1,18 +1,20 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-// require('dotenv').config()
 
-// const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : undefined;
+const genAI =  new GoogleGenerativeAI("AIzaSyBH5fxx1WfaLgHO2klA3f1eMxGXPBBefoc") 
+const model = genAI?.getGenerativeModel({model: "gemini-pro"})
 
-// const model = genAI?.getGenerativeModel({model: "gemini-1.5-flash"})
+const doingPrompt = async (prompt: string) => {
+    try {
+        console.log("Prompt: ", prompt)
+        const result = await model.generateContent(prompt)
 
-const doingPrompt = async (): Promise<string> => {
-    // const prompt = "A beautiful sunset over the city skyline"
-
-    // const result = await model?.generateContent(prompt)
-
-    // const response = result?.response?.text
-    // console.log(response)
-    return "Hello world!"
+        const response = result.response.text()
+        console.log("Response: ", response)
+        return response;
+    } catch (error) {
+        console.error("Error fetching response:", error);
+    }
+   
 }
 
 export default {

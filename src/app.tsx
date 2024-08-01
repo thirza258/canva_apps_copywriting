@@ -21,33 +21,43 @@ export const App = () => {
   const [step, setStep] = React.useState(1);
   const [range, setRange] = React.useState(5);
   const [theme, setTheme] = React.useState("");
-
-  const response_example = [
-    "A beautiful sunset over the city skyline",
-    "A beautiful sunset over the city",
-    "A beautiful sunset",
-  ]
+  const [prompt, setPrompt] = React.useState("");
+  const [responseExample, setResponseExample] = React.useState<string[]>([]);
 
   const onClickFirstStep = () => {
     setStep(2);
+    setPrompt(input);
   };
 
   const onClickSecondStep = async () => {
     setLoading(true);
+    let currentPrompt = `${input} ${theme} ${range}`;
+    if (theme !== "") {
+      currentPrompt = `${input} ${theme} ${range}`;
+    }
+    setPrompt(currentPrompt);
 
-    // Show progress bar for 5 seconds
-    setTimeout(async () => {
-      addNativeElement({
-        type: "TEXT",
-        children: ["Hello world!"],
-      });
-      // Simulate API call
-      const responses = await geminiService.doingPrompt();
-      setResponse(responses);
+    try {
+      const responses = await geminiService.doingPrompt(currentPrompt);
+      console.log(responses);
+      if (responses) {
+        setResponse(responses);
+        setResponseExample((prev: string[]) => [...prev, responses]);
+      }
+    } catch (error) {
+      console.error("Error fetching response:", error);
+    } finally {
       setStep(3);
-    }, 5000);
-    setLoading(false);
+      setLoading(false);
+    }
   };
+
+  const implement = (response: string) => {
+    addNativeElement({
+      type: "TEXT",
+      children: [response],
+    });
+  }
 
   return (
     <div className={styles.scrollContainer}>
@@ -77,7 +87,6 @@ export const App = () => {
             <Text>Can you give me more Context</Text>
             <TextInput
               name="input"
-              value={input}
               onChange={(value: string) => setTheme(value)}
               placeholder="theme"
             />
@@ -97,17 +106,21 @@ export const App = () => {
             </Button>
             <Button variant="secondary" onClick={() => setStep(1)} stretch>
               Back
-              </Button>
+            </Button>
           </>
         )}
         {step === 3 && (
           <>
-            {response_example.map((item, index) => (
+            <Text>Here is your generated copywriting</Text>
+            {responseExample.map((item, index) => (
               <div key={index}>
-              <Text key={index}>{item}</Text>
-              <Button variant="primary" stretch>Implement</Button>
+                <Text key={index}>{item}</Text>
+                <Button variant="primary" onClick={() => implement(item)} stretch>
+                  Implement
+                </Button>
               </div>
             ))}
+            <div className="kosong"></div>
             <Button variant="primary" onClick={() => setStep(1)} stretch>
               Restart
             </Button>
@@ -117,5 +130,3 @@ export const App = () => {
     </div>
   );
 };
-
-
