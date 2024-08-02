@@ -23,6 +23,7 @@ export const App = () => {
   const [theme, setTheme] = React.useState("");
   const [prompt, setPrompt] = React.useState("");
   const [responseExample, setResponseExample] = React.useState<string[]>([]);
+  const [error, setError] = React.useState("");
 
   const onClickFirstStep = () => {
     setStep(2);
@@ -41,8 +42,15 @@ export const App = () => {
       const responses = await geminiService.doingPrompt(currentPrompt);
       console.log(responses);
       if (responses) {
-        setResponse(responses);
-        setResponseExample((prev: string[]) => [...prev, responses]);
+        if (responses === "error, please try again") {
+          setError("error, please try again");
+          return;
+        } else {
+          setError("");
+          setResponse(responses);
+          let response_example = parseOutput(responses);
+          setResponseExample(response_example);
+        }
       }
     } catch (error) {
       console.error("Error fetching response:", error);
@@ -57,6 +65,19 @@ export const App = () => {
       type: "TEXT",
       children: [response],
     });
+  };
+
+  function parseOutput(output: string): string[] {
+    if (/^\d+\./.test(output)) {
+      return output.split("\n").map((line) => line.split(". ")[1].trim());
+    } else if (/^\[.*\]$/.test(output)) {
+      return output
+        .slice(1, -1)
+        .split(",")
+        .map((item) => item.trim());
+    } else {
+      return [output];
+    }
   }
 
   return (
@@ -73,6 +94,7 @@ export const App = () => {
             <MultilineInput
               autoGrow={true}
               id="input"
+              value={input}
               disabled={false}
               onChange={(value: string) => setInput(value)}
               placeholder="Write here"
@@ -87,6 +109,7 @@ export const App = () => {
             <Text>Can you give me more Context</Text>
             <TextInput
               name="input"
+              value={theme}
               onChange={(value: string) => setTheme(value)}
               placeholder="theme"
             />
@@ -112,10 +135,15 @@ export const App = () => {
         {step === 3 && (
           <>
             <Text>Here is your generated copywriting</Text>
+            {error && <Text>{error}</Text>}
             {responseExample.map((item, index) => (
               <div key={index}>
                 <Text key={index}>{item}</Text>
-                <Button variant="primary" onClick={() => implement(item)} stretch>
+                <Button
+                  variant="primary"
+                  onClick={() => implement(item)}
+                  stretch
+                >
                   Implement
                 </Button>
               </div>
