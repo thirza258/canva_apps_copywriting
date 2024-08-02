@@ -31,9 +31,9 @@ export const App = () => {
 
   const onClickSecondStep = async () => {
     setLoading(true);
-    let currentPrompt = `${input} ${theme} ${range}`;
+    let currentPrompt = `Generate copywriting ${input} with range ${range} words`;
     if (theme !== "") {
-      currentPrompt = `${input} ${theme} ${range}`;
+      currentPrompt = `Generate copywriting ${input} with theme ${theme} with range ${range} words`;
     }
     setPrompt(currentPrompt);
 
