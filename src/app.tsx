@@ -11,7 +11,7 @@ import {
 import { addNativeElement } from "@canva/design";
 import * as React from "react";
 import styles from "styles/components.css";
-import geminiService from "./gemini/geminiService";
+import axios from "axios";
 import { time } from "console";
 
 export const App = () => {
@@ -39,17 +39,18 @@ export const App = () => {
     setPrompt(currentPrompt);
 
     try {
-      const responses = await geminiService.doingPrompt(currentPrompt);
+      const responses = await axios.post("https://knowlxcircleapi.azurewebsites.net/api/v1/gemini/", {
+        search_query: currentPrompt,
+      })
       console.log(responses);
       if (responses) {
-        if (responses === "error, please try again") {
+        if (responses.data.status !== 200) {
           setError("error, please try again");
           return;
         } else {
           setError("");
-          setResponse(responses);
-          let response_example = parseOutput(responses);
-          setResponseExample(response_example);
+          setResponse(responses.data.response.response);
+          setResponseExample(parseOutput(responses.data.response.response));
         }
       }
     } catch (error) {
